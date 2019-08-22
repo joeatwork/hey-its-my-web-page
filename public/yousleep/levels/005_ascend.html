@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>005 "Ascend" : Works While You Sleep!</title>
+  <link rel="stylesheet" href="../styles/monochrome.css">
+  <style>
+
+    .next-time-on-area {
+        border-top: 1px solid black;
+        border-left: 1px solid black;
+        border-bottom: 2px solid black;
+        border-right: 2px solid black;
+    }
+
+    .next-time-on {
+        font-family: HeaderFont, Geneva, Arial, sans-serif;
+        margin: 12px;
+    }
+  </style>
+<!-- start Mixpanel --><script type="text/javascript">(function(d,c){var a,b,g,e;a=d.createElement("script");a.type="text/javascript";a.async=!0;a.src=("https:"===d.location.protocol?"https:":"http:")+'//api.mixpanel.com/site_media/js/api/mixpanel.2.js';b=d.getElementsByTagName("script")[0];b.parentNode.insertBefore(a,b);c._i=[];c.init=function(a,d,f){var b=c;"undefined"!==typeof f?b=c[f]=[]:f="mixpanel";g="disable track track_pageview track_links track_forms register register_once unregister identify name_tag set_config".split(" ");
+for(e=0;e<g.length;e++)(function(a){b[a]=function(){b.push([a].concat(Array.prototype.slice.call(arguments,0)))}})(g[e]);c._i.push([a,d,f])};window.mixpanel=c})(document,[]);
+mixpanel.init("8225af3b4eb4e53902e4cd79c242cc60");</script><!-- end Mixpanel -->
+<script>
+// Mixpanel stuff
+mixpanel.track('viewed 005');
+</script>
+</head>
+<body>
+<header>
+  <hgroup>
+    <div id="datebox"
+         style="float: right; width: 200px;"
+         ><time>2012-05-27</time:></div>
+    <h1><a href="javascript:void(0):">Works While You Sleep!</a></h1>
+  </hgroup>  
+</header>
+<section>
+  <div class="heading-area">
+    <div class="heading-bar"><h2>#5 : Ascend</h2></div>
+  </div><!-- .heading-area -->
+  <div class="body-area"
+       style="background-color: black;"
+       ><canvas width="576" height="384" id="adventureScreen"
+                ></div><!-- .body-area -->
+  <div class="nav-area">
+    <ul>
+      <li class="past"><a href="004_approach.html">&lt; Previous</a></li>
+      <li class="past"><a href="001_asgard.html">&lt;&lt; First</a></li>
+    </ul>
+    <div style="clear: both"></div>
+  </div><!-- .nav-area -->
+</section>
+
+<section>
+  <div class="next-time-on-area">
+  <div class="next-time-on">
+    <a href="/yousleep/levels/011_overworld.html">NEXT TIME, ON WORKS WHILE YOU SLEEP</a>: What has
+    become of our mysterious hero? What strange destination awaits after
+    the descent through the void? And who are these enigmatic figures
+    around him? Find out, in the two-fisted tale we like to call
+    <a href="/yousleep/levels/011_overworld.html">OVERWORLD!</a>.
+  </div>
+  </div>
+</section>
+
+<section>
+  <div class="about-area">
+    <div class="about-box">
+      Inspired by <a href="http://playdamage.org">playdamage.org</a>.
+      Built by Joe Bowers, who maintains a web site at
+      <a href="http://www.joe-bowers.com">joe-bowers.com</a>
+    </div><!-- .about-box -->
+  </div><!-- .about-area -->
+</section>
+<!--- NO MORE CONTENT --->
+<script src="../lib/jquery-1.7.2.min.js"></script>
+<script src="../js/chorus.js"></script>
+
+<!-- TODO MOVE bounds.js INTO character.js -->
+<script src="../js/character.js"></script>
+<script src="../js/bounds.js"></script>
+<script src="../js/tableau.js"></script>
+<script>
+(function(){
+    "use strict";
+
+    // Quick polyfill for animation.
+    window.requestAnimFrame = (function(callback){
+        return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function(callback){
+                window.setTimeout(callback, 10);
+            };
+    })();//polyfill
+
+    var character = false;
+    var frontCanvas = false;
+    var backCanvas = false;
+    var tableau = Tableau.create();
+
+    tableau.onCharacterAssetsLoaded = function(newCharacter, costume, bounds) {
+        character = newCharacter;
+        character.setCostume(costume);
+        character.setBounds(bounds, 0, 16, 32, 32);
+        character.setPosition(272, 224);
+
+        // character.setSpeed(0, 0); // One "Cell" is 32 x 32     
+        character.setSpeed(32, 0); // One "Cell" is 32 x 32     
+
+        var tumble = 0;
+        var spiral = -1;
+        var spinT0 = -1;
+        var spiralT0 = -1;
+        var oldDraw = character.draw;
+        var oldMove = character.move;
+        character.move = function(time) {
+            if(1774 < character.xPosition) {
+                character.xSpeed = 0;
+                character.ySpeed = 0;
+            }
+
+            if (character.xPosition > 900) {
+                if(spinT0 < 0) spinT0 = time;
+                var deltaT = time - spinT0;
+                tumble = (deltaT % 5000) * Math.PI/2500;
+            }
+            else {
+                spinT0 = -1;
+            }
+
+            if ((0 == character.xSpeed) && (0 == character.ySpeed)) {
+                if(spiralT0 < 0) spiralT0 = time;
+                var spiralT = time - spiralT0;
+                spiral = spiralT / 100;
+            }
+            else {
+                spiralT0 = -1;
+            }
+
+            return oldMove.call(character, time);
+        };
+
+        character.whenBlocked = function() {
+            character.xSpeed = 0;
+            character.ySpeed = 0;
+        };
+
+        character.draw = function(gfx) {
+            var atX = character.xPosition;
+            var atY = character.yPosition;
+            var ret;
+            if (atX > 900) {
+                gfx.save();
+                gfx.translate(atX, atY);
+                gfx.rotate(-tumble);
+                if (spiral > 0) gfx.translate(spiral, 0);
+                gfx.translate(-atX, -atY);
+                ret = oldDraw.call(character, gfx);
+                gfx.restore();
+            }
+            else {
+                ret = oldDraw.call(character, gfx);
+            }
+
+            return ret;
+        };
+    };
+
+    tableau.load("sprites/spaceman_32x48.png",
+                 "001_asgard/launchpad.png",
+                 "001_asgard/corridor_bounds.png");    
+
+    tableau.setFixedBackground("001_asgard/space_1164x394.png");
+
+    $(function() {
+        frontCanvas = $("#adventureScreen")[0];
+        backCanvas = document.createElement("canvas");
+        backCanvas.width = frontCanvas.width;
+        backCanvas.height = frontCanvas.height;
+    });
+
+    var animation = function() {
+        if(character && backCanvas && tableau.isLoaded()) {        
+            var now = (new Date()).getTime();
+            character.move(now);
+            tableau.draw(backCanvas);
+
+        }
+
+        if(backCanvas && frontCanvas) {
+            var frontGfx = frontCanvas.getContext("2d");
+            frontGfx.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
+            frontGfx.drawImage(backCanvas, 0, 0);
+        }
+
+        requestAnimFrame(animation);
+    };
+    // setInterval(animation, 100);
+    requestAnimFrame(animation);
+
+})();//ROOT SCOPE
+</script>
+</body>
+</html>

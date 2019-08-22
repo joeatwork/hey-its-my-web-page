@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>004 "Approach" : Works While You Sleep!</title>
+  <link rel="stylesheet" href="../styles/monochrome.css">
+<!-- start Mixpanel --><script type="text/javascript">(function(d,c){var a,b,g,e;a=d.createElement("script");a.type="text/javascript";a.async=!0;a.src=("https:"===d.location.protocol?"https:":"http:")+'//api.mixpanel.com/site_media/js/api/mixpanel.2.js';b=d.getElementsByTagName("script")[0];b.parentNode.insertBefore(a,b);c._i=[];c.init=function(a,d,f){var b=c;"undefined"!==typeof f?b=c[f]=[]:f="mixpanel";g="disable track track_pageview track_links track_forms register register_once unregister identify name_tag set_config".split(" ");
+for(e=0;e<g.length;e++)(function(a){b[a]=function(){b.push([a].concat(Array.prototype.slice.call(arguments,0)))}})(g[e]);c._i.push([a,d,f])};window.mixpanel=c})(document,[]);
+mixpanel.init("8225af3b4eb4e53902e4cd79c242cc60");</script><!-- end Mixpanel -->
+<script>
+// Mixpanel stuff
+mixpanel.track('viewed 004');
+</script>
+</head>
+<body>
+<header>
+  <hgroup>
+    <div id="datebox"
+         style="float: right; width: 200px;"
+         ><time>2012-05-20</time:></div>
+    <h1><a href="javascript:void(0):">Works While You Sleep!</a></h1>
+  </hgroup>  
+</header>
+<section>
+  <div class="heading-area">
+    <div class="heading-bar"><h2>#4 : Approach</h2></div>
+  </div><!-- .heading-area -->
+  <div class="body-area"
+       style="background-color: black;">
+    <canvas width="576" height="384" id="adventureScreen">
+  </div><!-- .body-area -->
+  <div class="nav-area">
+    <ul>
+      <li class="past"><a href="003_automatic.html">&lt; Previous</a></li>
+      <li class="past"><a href="001_asgard.html">&lt;&lt; First</a></li>
+      <li class="future"><a href="005_ascend.html">Next &gt;</a></li>
+    </ul>
+    <div style="clear: both"></div>
+  </div><!-- .nav-area -->
+</section>
+
+<section>
+  <div class="about-area">
+    <div class="about-box">
+      Inspired by <a href="http://playdamage.org">playdamage.org</a>.
+      Built by Joe Bowers, who maintains a web site at
+      <a href="http://www.joe-bowers.com">joe-bowers.com</a>
+    </div><!-- .about-box -->
+  </div><!-- .about-area -->
+</section>
+<!--- NO MORE CONTENT --->
+<script src="../lib/jquery-1.7.2.min.js"></script>
+<script src="../js/chorus.js"></script>
+
+<!-- TODO MOVE bounds.js INTO character.js -->
+<script src="../js/character.js"></script>
+<script src="../js/bounds.js"></script>
+<script src="../js/tableau.js"></script>
+<script>
+(function(){
+    "use strict";
+
+    // Quick polyfill for animation.
+    window.requestAnimFrame = (function(callback){
+	return window.requestAnimationFrame ||
+	    window.webkitRequestAnimationFrame ||
+	    window.mozRequestAnimationFrame ||
+	    window.oRequestAnimationFrame ||
+	    window.msRequestAnimationFrame ||
+	    function(callback){
+		window.setTimeout(callback, 10);
+	    };
+    })();//polyfill
+
+    var character = false;
+    var frontCanvas = false;
+    var backCanvas = false;
+    var tableau = Tableau.create();
+
+    tableau.onCharacterAssetsLoaded = function(newCharacter, costume, bounds) {
+        character = newCharacter;
+        character.setCostume(costume);
+        character.setBounds(bounds, 0, 16, 32, 32);
+        character.setPosition(0, 224);
+        character.setSpeed(32, 0); // One "Cell" is 32 x 32     
+	// character.setSpeed(1, 0); // One "Cell" is 32 x 32     
+    };
+
+    tableau.load("sprites/spaceman_32x48.png",
+                 "001_asgard/corridor.png",
+                 "001_asgard/corridor_bounds.png");
+
+    $(function() {
+        frontCanvas = $("#adventureScreen")[0];
+	backCanvas = document.createElement("canvas");
+	backCanvas.width = frontCanvas.width;
+	backCanvas.height = frontCanvas.height;
+    });
+
+    var animation = function() {
+        if(character && backCanvas && tableau.isLoaded()) {
+            var now = (new Date()).getTime();
+            character.move(now);
+            tableau.draw(backCanvas);
+        }
+
+	if(backCanvas && frontCanvas) {
+	    var frontGfx = frontCanvas.getContext("2d");
+	    frontGfx.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
+	    frontGfx.drawImage(backCanvas, 0, 0);
+	}
+
+	requestAnimFrame(animation);
+    };
+    // setInterval(animation, 100);
+    requestAnimFrame(animation);
+
+})();//ROOT SCOPE
+</script>
+</body>
+</html>

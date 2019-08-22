@@ -1,0 +1,14 @@
+RewriteEngine on
+RewriteBase /yousleep
+
+# New and index visitors should start from the very beginning
+RewriteRule ^/?$ /yousleep/levels/001_asgard.html [R]
+RewriteRule ^/index.html?$ /yousleep/levels/001_activation.html [R]
+
+# The latest will continue to change, this is for ease of nav in pages
+RewriteRule ^/levels/latest$ /yousleep/levels/003_automatic.html [R]
+
+AddType application/vnd.ms-fontobject .eot
+AddType font/ttf .ttf
+AddType font/otf .otf
+AddType font/x-woff .woff
