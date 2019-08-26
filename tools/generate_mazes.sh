@@ -3,38 +3,24 @@
 # to be built and available in
 # $MAZES_DIRECTORY
 
-# We target
-#  400 pixels across
-#  
+#           0   1   2   3   4   5   6   7   8   9  10
+widths=(    0  18  54  72 108 162 163 216 216 216 216)
+heights=(   0   1   3   4   6   9  12  24 162 216 432)
+pathwidths=(0  36  12   9   6   4   4   3   3   3   3)
 
-# (10 20 40 80 160 320)
-# (1   2  4  8  16  32)
-# (64 32 16   8     4)
-# (240)
-# (48)
-# (6)
+for mseed in 122 211 342 456 543 63; do
+seed=5556
+for i in 1 2 3 4 5 6 7 8 9 10; do
 
-
-# We also need a "half-step" between 4 and 5 : (  )
-
-for seed in 122 233 344 455; do
-mseed=$seed
-for i in 1 2 3 4 5 6; do
-
-    width=$(echo "5*(2^$i)" | bc)
-    height=$(echo "2^($i - 1)" | bc)
-    pathwidth=$(echo "256 / (2^$i)" | bc)
+    width=${widths[$i]}
+    height=${heights[$i]}
+    pathwidth=${pathwidths[$i]}
 
     $MAZES_DIRECTORY/grid --width=$width --height=$height | \
        $MAZES_DIRECTORY/maze --seed=$mseed | \
        $MAZES_DIRECTORY/color --seed=$seed | \
-       $MAZES_DIRECTORY/png --path-width=$pathwidth > /tmp/mazes/${i}_${width}x${height}_${mseed}.png
+       $MAZES_DIRECTORY/png --path-width=$pathwidth > /tmp/mazes/${i}_${width}x${height}x${pathwidth}_${mseed}.png
 done
-
-$MAZES_DIRECTORY/grid --width=240 --height=24 | \
-       $MAZES_DIRECTORY/maze --seed=$mseed | \
-       $MAZES_DIRECTORY/color --seed=$seed | \
-       $MAZES_DIRECTORY/png --path-width=5 > /tmp/mazes/5.5_240x24_${mseed}.png
 done
 
 optipng /tmp/mazes/*.png
